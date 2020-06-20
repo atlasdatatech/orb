@@ -153,6 +153,9 @@ func decode(vt *vectortile.Tile) (Layers, error) {
 func encodeProperties(kve *keyValueEncoder, properties geojson.Properties) ([]uint32, error) {
 	tags := make([]uint32, 0, 2*len(properties))
 	for k, v := range properties {
+		if v == nil {
+			continue
+		}
 		ki := kve.Key(k)
 		vi, err := kve.Value(v)
 		if err != nil {
