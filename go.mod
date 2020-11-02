@@ -1,4 +1,4 @@
-module github.com/atlasdatatech/orb
+module github.com/paulmach/orb
 
 go 1.13
 
