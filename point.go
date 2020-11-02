@@ -49,3 +49,23 @@ func (p Point) Lon() float64 {
 func (p Point) Equal(point Point) bool {
 	return p[0] == point[0] && p[1] == point[1]
 }
+
+// GCJ02ToWGS84 GCJ02 to WGS84.
+func (p Point) GCJ02ToWGS84() {
+	p[0], p[1] = Gcj02ToWgs84(p.X(), p.Y())
+}
+
+// WGS84ToGCJ02  WGS84 to GCJ02.
+func (p Point) WGS84ToGCJ02() {
+	p[0], p[1] = Wgs84ToGcj02(p.X(), p.Y())
+}
+
+// BD09ToWGS84 BD09 to WGS84.
+func (p Point) BD09ToWGS84() {
+	p[0], p[1] = Bd09ToGcj02(p.X(), p.Y())
+}
+
+// WGS84ToBD09  WGS84 to BD09.
+func (p Point) WGS84ToBD09() {
+	p[0], p[1] = Wgs84ToBd09(p.X(), p.Y())
+}

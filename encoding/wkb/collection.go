@@ -1,27 +1,26 @@
 package wkb
 
 import (
+	"encoding/binary"
 	"io"
 
 	"github.com/paulmach/orb"
 )
 
-func readCollection(r io.Reader, order byteOrder, buf []byte) (orb.Collection, error) {
-	num, err := readUint32(r, order, buf[:4])
-	if err != nil {
+func readCollection(r io.Reader, bom binary.ByteOrder) (orb.Collection, error) {
+	var num uint32
+	if err := binary.Read(r, bom, &num); err != nil {
 		return nil, err
 	}
 
-	alloc := num
-	if alloc > maxMultiAlloc {
+	if num > maxMultiAlloc {
 		// invalid data can come in here and allocate tons of memory.
-		alloc = maxMultiAlloc
+		num = maxMultiAlloc
 	}
-	result := make(orb.Collection, 0, alloc)
 
-	d := NewDecoder(r)
+	result := make(orb.Collection, 0, num)
 	for i := 0; i < int(num); i++ {
-		geom, err := d.Decode()
+		geom, err := NewDecoder(r).Decode()
 		if err != nil {
 			return nil, err
 		}

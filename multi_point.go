@@ -54,3 +54,43 @@ func (mp MultiPoint) Equal(multiPoint MultiPoint) bool {
 
 	return true
 }
+
+// GCJ02ToWGS84 GCJ02 to WGS84.
+func (mp MultiPoint) GCJ02ToWGS84() {
+	if len(mp) == 0 {
+		return
+	}
+	for i := 0; i < len(mp); i++ {
+		mp[i][0], mp[i][1] = Gcj02ToWgs84(mp[i].X(), mp[i].Y())
+	}
+}
+
+// WGS84ToGCJ02 WGS84 to GCJ02.
+func (mp MultiPoint) WGS84ToGCJ02() {
+	if len(mp) == 0 {
+		return
+	}
+	for i := 0; i < len(mp); i++ {
+		mp[i][0], mp[i][1] = Wgs84ToGcj02(mp[i].X(), mp[i].Y())
+	}
+}
+
+// BD09ToWGS84 BD09 to WGS84.
+func (mp MultiPoint) BD09ToWGS84() {
+	if len(mp) == 0 {
+		return
+	}
+	for i := 0; i < len(mp); i++ {
+		mp[i][0], mp[i][1] = Bd09ToWgs84(mp[i].X(), mp[i].Y())
+	}
+}
+
+// WGS84ToBD09 WGS84 to BD09.
+func (mp MultiPoint) WGS84ToBD09() {
+	if len(mp) == 0 {
+		return
+	}
+	for i := 0; i < len(mp); i++ {
+		mp[i][0], mp[i][1] = Wgs84ToBd09(mp[i].X(), mp[i].Y())
+	}
+}

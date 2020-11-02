@@ -74,3 +74,23 @@ func (r Ring) Clone() Ring {
 	ps := MultiPoint(r)
 	return Ring(ps.Clone())
 }
+
+// GCJ02ToWGS84 GCJ02 to WGS84.
+func (r Ring) GCJ02ToWGS84() {
+	MultiPoint(r).GCJ02ToWGS84()
+}
+
+// WGS84ToGCJ02 WGS84 to GCJ02.
+func (r Ring) WGS84ToGCJ02() {
+	MultiPoint(r).WGS84ToGCJ02()
+}
+
+// BD09ToWGS84 BD09 to WGS84.
+func (r Ring) BD09ToWGS84() {
+	MultiPoint(r).BD09ToWGS84()
+}
+
+// WGS84ToBD09 WGS84 to BD09.
+func (r Ring) WGS84ToBD09() {
+	MultiPoint(r).WGS84ToBD09()
+}

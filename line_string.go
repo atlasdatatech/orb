@@ -38,3 +38,35 @@ func (ls LineString) Clone() LineString {
 	ps := MultiPoint(ls)
 	return LineString(ps.Clone())
 }
+
+// GCJ02ToWGS84 GCJ02 to WGS84.
+func (ls LineString) GCJ02ToWGS84() {
+	if len(ls) == 0 {
+		return
+	}
+	MultiPoint(ls).GCJ02ToWGS84()
+}
+
+// WGS84ToGCJ02 WGS84 to GCJ02.
+func (ls LineString) WGS84ToGCJ02() {
+	if len(ls) == 0 {
+		return
+	}
+	MultiPoint(ls).WGS84ToGCJ02()
+}
+
+// BD09ToWGS84 BD09 to WGS84.
+func (ls LineString) BD09ToWGS84() {
+	if len(ls) == 0 {
+		return
+	}
+	MultiPoint(ls).BD09ToWGS84()
+}
+
+// WGS84ToBD09 WGS84 to BD09.
+func (ls LineString) WGS84ToBD09() {
+	if len(ls) == 0 {
+		return
+	}
+	MultiPoint(ls).WGS84ToBD09()
+}

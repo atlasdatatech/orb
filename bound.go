@@ -170,3 +170,27 @@ func (b Bound) Bound() Bound {
 func (b Bound) Equal(c Bound) bool {
 	return b.Min == c.Min && b.Max == c.Max
 }
+
+// GCJ02ToWGS84 GCJ02 to WGS84.
+func (b Bound) GCJ02ToWGS84() {
+	b.Min.GCJ02ToWGS84()
+	b.Max.GCJ02ToWGS84()
+}
+
+// WGS84ToGCJ02  WGS84 to GCJ02.
+func (b Bound) WGS84ToGCJ02() {
+	b.Min.WGS84ToGCJ02()
+	b.Max.WGS84ToGCJ02()
+}
+
+// BD09ToWGS84 BD09 to WGS84.
+func (b Bound) BD09ToWGS84() {
+	b.Min.BD09ToWGS84()
+	b.Max.BD09ToWGS84()
+}
+
+// WGS84ToBD09  WGS84 to BD09.
+func (b Bound) WGS84ToBD09() {
+	b.Min.WGS84ToBD09()
+	b.Max.WGS84ToBD09()
+}

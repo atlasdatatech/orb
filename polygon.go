@@ -53,3 +53,43 @@ func (p Polygon) Clone() Polygon {
 
 	return np
 }
+
+// GCJ02ToWGS84 GCJ02 to WGS84.
+func (p Polygon) GCJ02ToWGS84() {
+	if len(p) == 0 {
+		return
+	}
+	for i := 0; i < len(p); i++ {
+		p[i].GCJ02ToWGS84()
+	}
+}
+
+// WGS84ToGCJ02 WGS84 to GCJ02.
+func (p Polygon) WGS84ToGCJ02() {
+	if len(p) == 0 {
+		return
+	}
+	for i := 0; i < len(p); i++ {
+		p[i].WGS84ToGCJ02()
+	}
+}
+
+// BD09ToWGS84 BD09 to WGS84.
+func (p Polygon) BD09ToWGS84() {
+	if len(p) == 0 {
+		return
+	}
+	for i := 0; i < len(p); i++ {
+		p[i].BD09ToWGS84()
+	}
+}
+
+// WGS84ToBD09 WGS84 to BD09.
+func (p Polygon) WGS84ToBD09() {
+	if len(p) == 0 {
+		return
+	}
+	for i := 0; i < len(p); i++ {
+		p[i].WGS84ToBD09()
+	}
+}

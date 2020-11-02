@@ -1,5 +1,5 @@
 // Package wkb is for decoding ESRI's Well Known Binary (WKB) format
-// sepcification at https://en.wikipedia.org/wiki/Well-known_text_representation_of_geometry#Well-known_binary
+// sepcification at http://edndoc.esri.com/arcsde/9.1/general_topics/wkb_representation.htm
 package wkb
 
 import (
@@ -9,14 +9,6 @@ import (
 
 	"github.com/paulmach/orb"
 )
-
-// byteOrder represents little or big endian encoding.
-// We don't use binary.ByteOrder because that is an interface
-// that leaks to the heap all over the place.
-type byteOrder int
-
-const bigEndian byteOrder = 0
-const littleEndian byteOrder = 1
 
 const (
 	pointType              uint32 = 1
@@ -29,13 +21,13 @@ const (
 )
 
 const (
-	// limits so that bad data can't come in and preallocate tons of memory.
+	// limits so that bad data can't come in allocate way tons of memory.
 	// Well formed data with less elements will allocate the correct amount just fine.
-	maxPointsAlloc = 10000
+	maxPointsAlloc = 5000
 	maxMultiAlloc  = 100
 )
 
-// DefaultByteOrder is the order used for marshalling or encoding
+// DefaultByteOrder is the order used form marshalling or encoding
 // is none is specified.
 var DefaultByteOrder binary.ByteOrder = binary.LittleEndian
 
@@ -61,6 +53,7 @@ func MustMarshal(geom orb.Geometry, byteOrder ...binary.ByteOrder) []byte {
 
 // Marshal encodes the geometry with the given byte order.
 func Marshal(geom orb.Geometry, byteOrder ...binary.ByteOrder) ([]byte, error) {
+
 	buf := bytes.NewBuffer(make([]byte, 0, geomLength(geom)))
 
 	e := NewEncoder(buf)
@@ -73,14 +66,10 @@ func Marshal(geom orb.Geometry, byteOrder ...binary.ByteOrder) ([]byte, error) {
 		return nil, err
 	}
 
-	if buf.Len() == 0 {
-		return nil, nil
-	}
-
 	return buf.Bytes(), nil
 }
 
-// NewEncoder creates a new Encoder for the given writer.
+// NewEncoder creates a new Encoder for the given writer
 func NewEncoder(w io.Writer) *Encoder {
 	return &Encoder{
 		w:     w,
@@ -100,38 +89,9 @@ func (e *Encoder) Encode(geom orb.Geometry) error {
 		return nil
 	}
 
-	switch g := geom.(type) {
-	// nil values should not write any data. Empty sizes will still
-	// write an empty version of that type.
-	case orb.MultiPoint:
-		if g == nil {
-			return nil
-		}
-	case orb.LineString:
-		if g == nil {
-			return nil
-		}
-	case orb.MultiLineString:
-		if g == nil {
-			return nil
-		}
-	case orb.Polygon:
-		if g == nil {
-			return nil
-		}
-	case orb.MultiPolygon:
-		if g == nil {
-			return nil
-		}
-	case orb.Collection:
-		if g == nil {
-			return nil
-		}
 	// deal with types that are not supported by wkb
+	switch g := geom.(type) {
 	case orb.Ring:
-		if g == nil {
-			return nil
-		}
 		geom = orb.Polygon{g}
 	case orb.Bound:
 		geom = g.ToPolygon()
@@ -179,35 +139,13 @@ type Decoder struct {
 }
 
 // Unmarshal will decode the type into a Geometry.
-func Unmarshal(data []byte) (orb.Geometry, error) {
-	order, typ, data, err := unmarshalByteOrderType(data)
-	if err != nil {
-		return nil, err
+func Unmarshal(b []byte) (orb.Geometry, error) {
+	g, err := NewDecoder(bytes.NewReader(b)).Decode()
+	if err == io.EOF || err == io.ErrUnexpectedEOF {
+		return nil, ErrNotWKB
 	}
 
-	switch typ {
-	case pointType:
-		return unmarshalPoint(order, data[5:])
-	case multiPointType:
-		return unmarshalMultiPoint(order, data[5:])
-	case lineStringType:
-		return unmarshalLineString(order, data[5:])
-	case multiLineStringType:
-		return unmarshalMultiLineString(order, data[5:])
-	case polygonType:
-		return unmarshalPolygon(order, data[5:])
-	case multiPolygonType:
-		return unmarshalMultiPolygon(order, data[5:])
-	case geometryCollectionType:
-		g, err := NewDecoder(bytes.NewReader(data)).Decode()
-		if err == io.EOF || err == io.ErrUnexpectedEOF {
-			return nil, ErrNotWKB
-		}
-
-		return g, err
-	}
-
-	return nil, ErrUnsupportedGeometry
+	return g, err
 }
 
 // NewDecoder will create a new WKB decoder.
@@ -217,110 +155,59 @@ func NewDecoder(r io.Reader) *Decoder {
 	}
 }
 
-// Decode will decode the next geometry off of the stream.
+// Decode will decode the next geometry off of the steam.
 func (d *Decoder) Decode() (orb.Geometry, error) {
-	buf := make([]byte, 8)
-	order, typ, err := readByteOrderType(d.r, buf)
+	byteOrder, typ, err := readByteOrderType(d.r)
 	if err != nil {
 		return nil, err
 	}
 
 	switch typ {
 	case pointType:
-		return readPoint(d.r, order, buf)
+		return readPoint(d.r, byteOrder)
 	case multiPointType:
-		return readMultiPoint(d.r, order, buf)
+		return readMultiPoint(d.r, byteOrder)
 	case lineStringType:
-		return readLineString(d.r, order, buf)
+		return readLineString(d.r, byteOrder)
 	case multiLineStringType:
-		return readMultiLineString(d.r, order, buf)
+		return readMultiLineString(d.r, byteOrder)
 	case polygonType:
-		return readPolygon(d.r, order, buf)
+		return readPolygon(d.r, byteOrder)
 	case multiPolygonType:
-		return readMultiPolygon(d.r, order, buf)
+		return readMultiPolygon(d.r, byteOrder)
 	case geometryCollectionType:
-		return readCollection(d.r, order, buf)
+		return readCollection(d.r, byteOrder)
 	}
 
 	return nil, ErrUnsupportedGeometry
 }
 
-func readByteOrderType(r io.Reader, buf []byte) (byteOrder, uint32, error) {
-	// the byte order is the first byte
-	if _, err := r.Read(buf[:1]); err != nil {
-		return 0, 0, err
+func readByteOrderType(r io.Reader) (binary.ByteOrder, uint32, error) {
+	var bom = make([]byte, 1)
+
+	// the bom is the first byte
+	if _, err := r.Read(bom); err != nil {
+		return nil, 0, err
 	}
 
-	var order byteOrder
-	if buf[0] == 0 {
-		order = bigEndian
-	} else if buf[0] == 1 {
-		order = littleEndian
+	var byteOrder binary.ByteOrder
+	if bom[0] == 0 {
+		byteOrder = binary.BigEndian
+	} else if bom[0] == 1 {
+		byteOrder = binary.LittleEndian
 	} else {
-		return 0, 0, ErrNotWKB
+		return nil, 0, ErrNotWKB
 	}
 
 	// the type which is 4 bytes
-	typ, err := readUint32(r, order, buf[:4])
+	var typ uint32
+
+	err := binary.Read(r, byteOrder, &typ)
 	if err != nil {
-		return 0, 0, err
+		return nil, 0, err
 	}
 
-	return order, typ, nil
-}
-
-func readUint32(r io.Reader, order byteOrder, buf []byte) (uint32, error) {
-	if _, err := io.ReadFull(r, buf); err != nil {
-		return 0, err
-	}
-	return unmarshalUint32(order, buf), nil
-}
-
-func unmarshalByteOrderType(buf []byte) (byteOrder, uint32, []byte, error) {
-	order, typ, err := byteOrderType(buf)
-	if err == nil {
-		return order, typ, buf, nil
-	}
-
-	if len(buf) < 6 {
-		return 0, 0, nil, err
-	}
-
-	// The prefix is incorrect, let's see if this is data in
-	// MySQL's SRID+WKB format. So truncate the SRID prefix.
-	buf = buf[4:]
-	order, typ, err = byteOrderType(buf)
-	if err != nil || typ > 7 {
-		return 0, 0, nil, ErrNotWKB
-	}
-
-	return order, typ, buf, nil
-}
-
-func byteOrderType(buf []byte) (byteOrder, uint32, error) {
-	if len(buf) < 6 {
-		return 0, 0, ErrNotWKB
-	}
-
-	var order byteOrder
-	if buf[0] == 0 {
-		order = bigEndian
-	} else if buf[0] == 1 {
-		order = littleEndian
-	} else {
-		return 0, 0, ErrNotWKB
-	}
-
-	// the type which is 4 bytes
-	typ := unmarshalUint32(order, buf[1:])
-	return order, typ, nil
-}
-
-func unmarshalUint32(order byteOrder, buf []byte) uint32 {
-	if order == littleEndian {
-		return binary.LittleEndian.Uint32(buf)
-	}
-	return binary.BigEndian.Uint32(buf)
+	return byteOrder, typ, err
 }
 
 // geomLength helps to do preallocation during a marshal.
@@ -361,6 +248,6 @@ func geomLength(geom orb.Geometry) int {
 
 		return 9 + sum
 	}
-
 	return 0
+
 }

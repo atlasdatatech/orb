@@ -56,3 +56,47 @@ func (mls MultiLineString) Clone() MultiLineString {
 
 	return nmls
 }
+
+// GCJ02ToWGS84 GCJ02 to WGS84.
+func (mls MultiLineString) GCJ02ToWGS84() {
+	if len(mls) == 0 {
+		return
+	}
+
+	for i := 0; i < len(mls); i++ {
+		mls[i].GCJ02ToWGS84()
+	}
+}
+
+// WGS84ToGCJ02 WGS84 to GCJ02.
+func (mls MultiLineString) WGS84ToGCJ02() {
+	if len(mls) == 0 {
+		return
+	}
+
+	for i := 0; i < len(mls); i++ {
+		mls[i].WGS84ToGCJ02()
+	}
+}
+
+// BD09ToWGS84 BD09 to WGS84.
+func (mls MultiLineString) BD09ToWGS84() {
+	if len(mls) == 0 {
+		return
+	}
+
+	for i := 0; i < len(mls); i++ {
+		mls[i].BD09ToWGS84()
+	}
+}
+
+// WGS84ToBD09 WGS84 to BD09.
+func (mls MultiLineString) WGS84ToBD09() {
+	if len(mls) == 0 {
+		return
+	}
+
+	for i := 0; i < len(mls); i++ {
+		mls[i].WGS84ToBD09()
+	}
+}

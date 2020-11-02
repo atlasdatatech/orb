@@ -112,7 +112,7 @@ keyed by the layer name. For example:
 	// Simplify the geometry now that it's in tile coordinate space.
 	layers.Simplify(simplify.DouglasPeucker(1.0))
 
-	// Depending on use-case remove empty geometry, those too small to be
+	// Depending on use-case remove empty geometry, those two small to be
 	// represented in this tile space.
 	// In this case lines shorter than 1, and areas smaller than 2.
 	layers.RemoveEmpty(1.0, 2.0)
@@ -134,12 +134,7 @@ For example:
 	var p orb.Point
 	err := row.Scan(wkb.Scanner(&p))
 
-	db.Exec("INSERT INTO table (point_column) VALUES (ST_GeomFromWKB(?))", wkb.Value(p))
-
-Scanning directly from MySQL columns is supported. By default MySQL returns geometry
-data as WKB but prefixed with a 4 byte SRID. To support this, if the data is not
-valid WKB, the code will strip the first 4 bytes, the SRID, and try again.
-This works for most use cases.
+	db.Exec("INSERT INTO table (point_column) VALUES (?)", wkb.Value(p))
 
 ## List of sub-package utilities
 

@@ -7,6 +7,11 @@ type Geometry interface {
 	Dimensions() int // e.g. 0d, 1d, 2d
 	Bound() Bound
 
+	GCJ02ToWGS84()
+	BD09ToWGS84()
+	WGS84ToGCJ02()
+	WGS84ToBD09()
+
 	// requiring because sub package type switch over all possible types.
 	private()
 }
@@ -143,4 +148,20 @@ func (c Collection) Clone() Collection {
 	}
 
 	return nc
+}
+
+// GCJ02ToWGS84 GCJ02 to WGS84.
+func (c Collection) GCJ02ToWGS84() {
+}
+
+// WGS84ToGCJ02  WGS84 to GCJ02.
+func (c Collection) WGS84ToGCJ02() {
+}
+
+// BD09ToWGS84 BD09 to WGS84.
+func (c Collection) BD09ToWGS84() {
+}
+
+// WGS84ToBD09  WGS84 to BD09.
+func (c Collection) WGS84ToBD09() {
 }

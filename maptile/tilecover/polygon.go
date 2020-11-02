@@ -97,10 +97,6 @@ func polygon(set maptile.Set, p orb.Polygon, zoom maptile.Zoom) {
 		}
 	}
 
-	if len(intersections)%2 != 0 {
-		panic("tilecover: uneven intersections, ring not closed?")
-	}
-
 	// sort by y, then x
 	sort.Slice(intersections, func(i, j int) bool {
 		it := intersections[i]
